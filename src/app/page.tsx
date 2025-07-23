@@ -1,103 +1,128 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+import React, { useState, useRef, useEffect } from 'react';
+import Buttons from './components/Buttons';
+import Weather from './components/Weather';
+import News from './components/News';
+import Navbar from './components/Navbar';
+import PaymentForm from './components/PaymentForm';
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+const Page = () => {
+  const [search, setSearch] = useState('Nairobi');
+  const [selectedTab, setSelectedTab] = useState('weather');
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [loading, setLoading] = useState(true); // loading state
+
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  // Close sidebar if clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(e.target as Node)
+      ) {
+        setShowSidebar(false);
+      }
+    };
+
+    if (showSidebar) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSidebar]);
+
+  // Simulate loading
+  useEffect(() => {
+    const timeout = setTimeout(() => setLoading(false), 2000);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 animate-pulse flex flex-col p-4">
+        <div className="h-12 w-1/3 bg-gray-300 rounded mb-6" />
+        <div className="flex flex-1">
+          {/* Sidebar Skeleton */}
+          <div className="w-64 hidden md:block space-y-4 pr-4">
+            <div className="h-10 bg-gray-300 rounded" />
+            <div className="h-10 bg-gray-300 rounded" />
+            <div className="h-10 bg-gray-300 rounded" />
+            <div className="h-10 bg-gray-300 rounded" />
+          </div>
+
+          {/* Main Content Skeleton */}
+          <div className="flex-1 space-y-6">
+            <div className="h-8 bg-gray-300 rounded w-1/2" />
+            <div className="h-40 bg-gray-200 rounded" />
+            <div className="h-40 bg-gray-200 rounded" />
+            <div className="h-40 bg-gray-200 rounded" />
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      {/* Navbar */}
+      <Navbar
+        setSearch={setSearch}
+        toggleSidebar={() => setShowSidebar(!showSidebar)}
+      />
+
+      <div className="flex flex-1 relative">
+        {/* Sidebar */}
+        <div
+          ref={sidebarRef}
+          className={`
+            fixed top-0 left-0 z-40 w-64 h-screen p-4 bg-white shadow-md
+            transform transition-transform duration-300 ease-in-out
+            ${showSidebar ? 'translate-x-0' : '-translate-x-full'}
+            md:translate-x-0 md:relative md:sticky md:top-0 md:block md:h-screen
+            md:shadow-none md:bg-transparent
+          `}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+          <Buttons
+            selectedTab={selectedTab}
+            onTabSelect={(tab) => {
+              setSelectedTab(tab);
+              setShowSidebar(false);
+            }}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </div>
+
+        {/* Main content */}
+        <div className="flex-1 p-4 lg:p-6 flex justify-center">
+          <div className="w-full max-w-4xl">
+            <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+
+            {selectedTab === 'weather' && <Weather search={search} />}
+            {selectedTab === 'news' && <News search={search} />}
+            {selectedTab === 'donate' && <PaymentForm />}
+          </div>
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default Page;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
