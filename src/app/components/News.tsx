@@ -15,9 +15,7 @@ const News = ({ search }: { search: string }) => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `https://newsapi.org/v2/everything?q=${search}&sortBy=publishedAt&apiKey=${process.env.NEXT_PUBLIC_NEWS_KEY}`
-        );
+        const response = await axios.get(`/api/news?q=${search}`);
         setNews(response.data.articles);
         setError(null);
       } catch (err) {
@@ -55,7 +53,7 @@ const News = ({ search }: { search: string }) => {
             </div>
           ))}
         </div>
-      ) : news.length > 0 ? (
+      ) : Array.isArray(news) && news.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {news.map((article, index) => (
             <div
@@ -102,6 +100,7 @@ const News = ({ search }: { search: string }) => {
 };
 
 export default News;
+
 
 
 
